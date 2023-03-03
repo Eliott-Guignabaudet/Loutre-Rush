@@ -5,13 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/LoutreRushLauncher.unity
     guid: 2cda990e2423bbf4892e6590ba056729
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/LoutreRushRoom.unity
     guid: 5ad58c03acb2d454a8742dbb4d0ec4b1
-  - enabled: 0
+  - enabled: 1
     path: Assets/Photon/PhotonUnityNetworking/Demos/PunCockpit/PunCockpit-Scene.unity
     guid: 9d6d60c803e244e51ba945a84b88757d
   - enabled: 0

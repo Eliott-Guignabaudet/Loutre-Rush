@@ -9,13 +9,17 @@ using TMPro;
 public class LoutreRushLauncher : MonoBehaviourPunCallbacks
 {
 
+    public GameObject lobbyPanel;
+    public GameObject connectingPanel;
+
+
     public Button btn;
     public TextMeshProUGUI feedbackText;
-
-    private byte maxPlayersPerRoom = 2;
-
+    
     bool isConnecting;
 
+
+    private byte maxPlayersPerRoom = 2;
     string gameVersion = "0.1";
 
     void Awake()
@@ -23,6 +27,7 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
         PhotonNetwork.AutomaticallySyncScene = true;
 
     }
+
 
     public void Connect()
     {
@@ -39,7 +44,7 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
         {
             LogFeedback("Joining Room...");
             // #Critical we need at this point to attempt joining a Random Room. If it fails, we'll get notified in OnJoinRandomFailed() and we'll create one.
-            PhotonNetwork.JoinRandomRoom();
+            this.JoinLobby();
         }
         else
         {
@@ -75,7 +80,7 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
             Debug.Log("PUN Basics Tutorial/Launcher: OnConnectedToMaster() was called by PUN. Now this client is connected and could join a room.\n Calling: PhotonNetwork.JoinRandomRoom(); Operation will fail if no room found");
 
             // #Critical: The first we try to do is to join a potential existing room. If there is, good, else, we'll be called back with OnJoinRandomFailed()
-            PhotonNetwork.JoinRandomRoom();
+            this.JoinLobby();
         }
     }
 
@@ -116,4 +121,24 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
 
         }
     }
+
+
+    public void JoinLobby()
+    {
+        bool _result = PhotonNetwork.JoinLobby();
+
+        if (!_result)
+        {
+            Debug.LogError("PunCockpit: Could not joinLobby");
+        }
+    }
+
+    public override void OnJoinedLobby()
+    {
+        lobbyPanel.SetActive(true);
+        connectingPanel.SetActive(false);
+    }
+
+    
+
 }

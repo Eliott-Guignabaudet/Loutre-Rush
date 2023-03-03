@@ -23,6 +23,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
 
         PhotonNetwork.Instantiate(playerPrefab.name, Vector3.up, Quaternion.identity, 0);
+
+
     }
     private void Update()
     {
@@ -44,7 +46,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     public override void OnLeftRoom()
     {
-        SceneManager.LoadScene("MyLauncherScene");
+        SceneManager.LoadScene("LoutreRushLauncher");
     }
 
     public void LeaveRoom()

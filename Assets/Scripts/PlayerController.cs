@@ -12,18 +12,40 @@ public class PlayerController : MonoBehaviourPunCallbacks
 {
     public float moveSpeed = 10f;
     public Rigidbody2D rb;
-    public float hp = 500;
+
+    private float _hp;
+    public float hp { 
+        get { return _hp; } 
+        set { 
+            _hp = value;
+            if (photonView.IsMine)
+            {
+                Slider healthBarSlider = healthBar.GetComponent<Slider>();
+                healthBarSlider.value = _hp;
+            }
+            
+        }
+
+    }
     public float launchPower = 10;
     public GameObject spellPrefab;
 
     public GameObject endPanel;
 
+    public GameObject healthBar;
+
     private bool isPaused;
 
-    void Start()
+    private void Awake()
     {
-        
+        if (photonView.IsMine)
+        {
+            healthBar = GameObject.Find("HealthBar");
+        }
+        hp = 250;
     }
+
+
 
     void Update()
     {

@@ -173,9 +173,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 3
   rb: {fileID: 3127893328116730619}
-  hp: 500
-  launchPower: 200
+  hp: 100
+  launchPower: 300
   spellPrefab: {fileID: 7356432371162787720, guid: ba0fab163c29d2b409f61a3ea21831fc, type: 3}
+  endPanel: {fileID: 8346976741313435843, guid: 228c9d12817553e4aae04fdc5c9e7588, type: 3}
 --- !u!114 &-70546052318082655
 MonoBehaviour:
   m_ObjectHideFlags: 0

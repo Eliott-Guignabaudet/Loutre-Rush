@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 7356432371162787735}
   - component: {fileID: 7356432371162787734}
   - component: {fileID: 7356432371162787721}
+  - component: {fileID: 4909650086318422392}
   m_Layer: 0
   m_Name: Spell
   m_TagString: Spell
@@ -31,7 +32,7 @@ Transform:
   m_GameObject: {fileID: 7356432371162787720}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -3.12, y: 0.006, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.34593, y: 0.34593, z: 0.34593}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -182,3 +183,18 @@ MonoBehaviour:
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &4909650086318422392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7356432371162787720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7a628542a312c7418b0d47c775ecb2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  remainingTime: 0
+  launcher: {fileID: 0}
+  damages: 0

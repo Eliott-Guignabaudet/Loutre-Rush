@@ -4,6 +4,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
+using Photon.Pun.Demo.PunBasics;
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {
@@ -13,6 +16,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public float launchPower = 10;
     public GameObject spellPrefab;
 
+    public GameObject endPanel;
+
+    private bool isPaused;
+
     void Start()
     {
         
@@ -20,7 +27,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     void Update()
     {
-        if (photonView.IsMine)
+        if (photonView.IsMine && !isPaused)
         {
             ProcessInput();
         }
@@ -70,11 +77,57 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
-        if (collision.gameObject.CompareTag("Spell"))
+        if (!collision.gameObject.CompareTag("Spell"))
         {
-            Destroy(collision.gameObject);
-            hp -= 50;
+            return;
         }
+
+        SpellController spell = collision.gameObject.GetComponent<SpellController>();
+        GameObject launcher = spell.launcher;
+
+        if (spell.launcher != gameObject)
+        {
+            hp -= spell.damages;
+            Destroy(spell.gameObject);
+        }
+
+        if (hp <=0)
+        {
+            DisplayEndScreen();
+            isPaused = true;
+            launcher.GetComponent<PlayerController>().isPaused = true;
+        }
+    }
+
+    public void DisplayEndScreen()
+    {
+        
+        if (photonView.IsMine)
+        {
+            Loose();
+            return;
+        }
+        Win();
+    }
+
+    public void Win()
+    {
+        GameObject newEndPanel = Instantiate(endPanel, Vector3.zero, Quaternion.identity);
+        newEndPanel.transform.parent = GameObject.Find("Canvas").transform;
+        newEndPanel.GetComponent<RectTransform>().localPosition = Vector3.zero;
+        TextMeshProUGUI endPanelText = newEndPanel.GetComponent<EndPanel>().victoryText;
+        endPanelText.text = "You Win";
+        endPanelText.color = Color.blue;
+    }
+
+    public void Loose()
+    {
+        GameObject newEndPanel = Instantiate(endPanel, Vector3.zero, Quaternion.identity);
+        newEndPanel.transform.parent = GameObject.Find("Canvas").transform;
+        newEndPanel.GetComponent<RectTransform>().localPosition = Vector3.zero;
+        TextMeshProUGUI endPanelText = newEndPanel.GetComponent<EndPanel>().victoryText;
+        endPanelText.text = "You Loose";
+        endPanelText.color = Color.red;
     }
 
     [PunRPC]
@@ -83,6 +136,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
         GameObject bullet;
 
         bullet = Instantiate(spellPrefab, pos, Quaternion.identity);
+        SpellController spellController = bullet.GetComponent<SpellController>();
+        spellController.damages = 50;
+        spellController.launcher = gameObject;
+        spellController.remainingTime = 1f;
+
         bullet.GetComponent<Rigidbody2D>().AddForce(dir * launchPower);
         Debug.Log(bullet.GetComponent<Rigidbody2D>());
     }

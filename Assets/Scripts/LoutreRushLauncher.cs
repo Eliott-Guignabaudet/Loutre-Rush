@@ -89,7 +89,6 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
             // #Critical: The first we try to do is to join a potential existing room. If there is, good, else, we'll be called back with OnJoinRandomFailed()
             this.JoinLobby();
             Debug.Log("Lobby name " +PhotonNetwork.CurrentLobby.Name);
-            Debug.Log("Count of rooms: " + PhotonNetwork.CountOfRooms);
 
 
 
@@ -117,17 +116,9 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
 
     }
 
-    public override void OnJoinedRoom()
-    {
-        LogFeedback("<Color=Green>OnJoinedRoom</Color> with " + PhotonNetwork.CurrentRoom.PlayerCount + " Player(s)");
-        Debug.Log("PUN Basics Tutorial/Launcher: OnJoinedRoom() called by PUN. Now this client is in a room.\nFrom here on, your game would be running.");
-        Debug.Log(PhotonNetwork.CurrentRoom.ToString());
-        Debug.Log(PhotonNetwork.CurrentRoom.PlayerCount);
-        
-        // #Critical: We only load if we are the first player, else we rely on  PhotonNetwork.AutomaticallySyncScene to sync our instance scene.
-        
-    }
 
+
+    #region ConnectLobby
 
     public void JoinLobby()
     {
@@ -150,6 +141,10 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
         lobbyPanel.SetActive(true);
         connectingPanel.SetActive(false);
     }
+    #endregion
+
+    #region ConnectRoom
+
 
     public void CreateRoom()
     {
@@ -167,10 +162,8 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
         lobbyType = LobbyType.Default;
         TypedLobby typedLobby = new TypedLobby("All", lobbyType);
 
-        //PhotonNetwork.CreateRoom("test", roomOptions, typedLobby);
-        PhotonNetwork.JoinOrCreateRoom(roomName, roomOptions, typedLobby);
+        PhotonNetwork.CreateRoom(roomName, roomOptions, typedLobby);
 
-        //PhotonNetwork.JoinRoom(roomName);
     }
 
     public override void OnCreatedRoom()
@@ -178,6 +171,19 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
         Debug.Log("A room is created");
     }
 
+    public override void OnJoinedRoom()
+    {
+        LogFeedback("<Color=Green>OnJoinedRoom</Color> with " + PhotonNetwork.CurrentRoom.PlayerCount + " Player(s)");
+        Debug.Log("PUN Basics Tutorial/Launcher: OnJoinedRoom() called by PUN. Now this client is in a room.\nFrom here on, your game would be running.");
+        Debug.Log(PhotonNetwork.CurrentRoom.ToString());
+
+        // #Critical: We only load if we are the first player, else we rely on  PhotonNetwork.AutomaticallySyncScene to sync our instance scene.
+
+    }
+    #endregion
+
+
+    #region HubUI
     public void DisplayCreateRoomPanel()
     {
         if (lobbyPanel.activeSelf)
@@ -190,15 +196,13 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
-        Debug.Log("Update List");
         for (int i = 0; i < RoomPanel.childCount; i++)
         {
             RoomPanel.GetChild(i).gameObject.SetActive(false);
         }
         if (!PhotonNetwork.InRoom)
         {
-            Debug.Log("Not In room");
-            Debug.Log(roomList.Count);
+            Debug.Log("RoomList Count: " + roomList.Count);
 
             foreach (var item in roomList)
             {
@@ -225,4 +229,5 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
 
         }
     }
+    #endregion
 }

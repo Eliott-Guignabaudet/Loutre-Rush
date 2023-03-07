@@ -8,6 +8,7 @@ using TMPro;
 using UnityEngine.UI;
 using Photon.Pun.Demo.PunBasics;
 
+
 public class PlayerController : MonoBehaviourPunCallbacks
 {
     public float moveSpeed = 10f;
@@ -92,7 +93,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    /*private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision == null) 
         {
@@ -119,6 +120,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
             isPaused = true;
             launcher.GetComponent<PlayerController>().isPaused = true;
         }
+    }*/
+
+    public void TakeDamage(int damages, GameObject launcher)
+    {
+        hp -= damages;
+        if (hp <= 0)
+        {
+            DisplayEndScreen();
+            isPaused = true;
+            launcher.GetComponent<PlayerController>().isPaused = true;
+        }
+
     }
 
     public void DisplayEndScreen()

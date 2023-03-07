@@ -21,8 +21,13 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             return;
         }
-
-        PhotonNetwork.Instantiate(playerPrefab.name, Vector3.up, Quaternion.identity, 0);
+        
+        if (PhotonNetwork.PlayerList[0].IsLocal)
+        {
+            PhotonNetwork.Instantiate(playerPrefab.name, Vector3.up, Quaternion.identity, 0);
+            return;
+        }
+        PhotonNetwork.Instantiate(playerPrefab.name, Vector3.down, Quaternion.identity, 0);
 
 
     }

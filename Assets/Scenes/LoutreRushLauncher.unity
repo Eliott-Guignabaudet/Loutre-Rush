@@ -1334,7 +1334,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1453207101}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1841098630}
+        m_TargetAssemblyTypeName: LoutreRushLauncher, Assembly-CSharp
+        m_MethodName: JoinRoom
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1453207101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2327,6 +2339,7 @@ MonoBehaviour:
   createRoomPanel: {fileID: 1740266765}
   UIRoomPrefab: {fileID: 4567741828227995943, guid: de88f4ea04e20e7488a1d10d70aead2f, type: 3}
   RoomPanel: {fileID: 223603677}
+  _joinRoomButton: {fileID: 1453207100}
   RoomCreatedName: {fileID: 546175211}
   btn: {fileID: 1297254447}
   feedbackText: {fileID: 1816280400}
@@ -2761,7 +2774,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4567741828227995936, guid: de88f4ea04e20e7488a1d10d70aead2f, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4567741828227995936, guid: de88f4ea04e20e7488a1d10d70aead2f, type: 3}
       propertyPath: m_AnchorMin.x
@@ -2769,7 +2782,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4567741828227995936, guid: de88f4ea04e20e7488a1d10d70aead2f, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4567741828227995936, guid: de88f4ea04e20e7488a1d10d70aead2f, type: 3}
       propertyPath: m_SizeDelta.x
@@ -2809,11 +2822,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4567741828227995936, guid: de88f4ea04e20e7488a1d10d70aead2f, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 163.93092
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4567741828227995936, guid: de88f4ea04e20e7488a1d10d70aead2f, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -28.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4567741828227995936, guid: de88f4ea04e20e7488a1d10d70aead2f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2833,7 +2846,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4567741828227995943, guid: de88f4ea04e20e7488a1d10d70aead2f, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: de88f4ea04e20e7488a1d10d70aead2f, type: 3}

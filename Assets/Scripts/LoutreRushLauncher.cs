@@ -15,6 +15,9 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
     public GameObject createRoomPanel;
     public GameObject UIRoomPrefab;
     public RectTransform RoomPanel;
+    private GameObject roomSelected;
+    [SerializeField]
+    private Button _joinRoomButton;
 
     public TextMeshProUGUI RoomCreatedName;
 
@@ -28,10 +31,23 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
     private byte maxPlayersPerRoom = 2;
     string gameVersion = "0.1";
 
+    private static LoutreRushLauncher _instance;
+
+    public static LoutreRushLauncher Instance
+    {
+        get { return _instance; }
+        set { _instance = value; }
+    }
+
     void Awake()
     {
         PhotonNetwork.AutomaticallySyncScene = true;
-
+        if (Instance != null)
+        {
+            Destroy(this);
+            return;
+        }
+        Instance = this;
     }
 
 
@@ -180,6 +196,26 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
         // #Critical: We only load if we are the first player, else we rely on  PhotonNetwork.AutomaticallySyncScene to sync our instance scene.
 
     }
+
+    public void JoinRoom()
+    {
+        PhotonNetwork.JoinRoom(roomSelected.GetComponent<RoomSelection>().RoomName.text);
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        if (PhotonNetwork.CurrentRoom.PlayerCount == 2)
+        {
+            Debug.Log("We load the 'LoutreRushRoom' ");
+
+            // #Critical
+            // Load the Room Level. 
+            PhotonNetwork.LoadLevel("LoutreRushRoom");
+
+        }
+    }
+
+
     #endregion
 
 
@@ -203,13 +239,13 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
         if (!PhotonNetwork.InRoom)
         {
             Debug.Log("RoomList Count: " + roomList.Count);
-
+            
             foreach (var item in roomList)
             {
                 GameObject newRoomSelection = Instantiate(UIRoomPrefab, Vector2.one, Quaternion.identity);
                 newRoomSelection.GetComponent<RoomSelection>().RoomName.text = item.Name;
                 newRoomSelection.GetComponent<RoomSelection>().RoomPlayers.text = item.PlayerCount.ToString();
-                newRoomSelection.GetComponent<RectTransform>().parent = RoomPanel;
+                newRoomSelection.GetComponent<RectTransform>().SetParent(RoomPanel);
                 newRoomSelection.GetComponent<RectTransform>().localScale= Vector2.one;
             }
         }
@@ -217,17 +253,26 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
         
     }
 
-    public override void OnPlayerEnteredRoom(Player newPlayer)
+    public  void ChangeTogglvalue(GameObject roomSelection) 
     {
-        if (PhotonNetwork.CurrentRoom.PlayerCount == 2)
+        if (roomSelected == null)
         {
-            Debug.Log("We load the 'LoutreRushRoom' ");
-
-            // #Critical
-            // Load the Room Level. 
-            PhotonNetwork.LoadLevel("LoutreRushRoom");
-
+            _joinRoomButton.interactable = true;
         }
+
+        if (roomSelected == roomSelection)
+        {
+            return;
+        }
+        if (roomSelected != null)
+        {
+            roomSelected.GetComponent<Image>().color = new Color(255,255,255,100);
+        }
+        roomSelected = roomSelection;
+        roomSelected.GetComponent<Image>().color = Color.green;
     }
+
+
+    
     #endregion
 }

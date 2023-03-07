@@ -5,12 +5,18 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
 using TMPro;
+using Unity.VisualScripting;
 
 public class LoutreRushLauncher : MonoBehaviourPunCallbacks
 {
 
     public GameObject lobbyPanel;
     public GameObject connectingPanel;
+    public GameObject createRoomPanel;
+    public GameObject UIRoomPrefab;
+    public RectTransform RoomPanel;
+
+    public TextMeshProUGUI RoomCreatedName;
 
 
     public Button btn;
@@ -42,7 +48,7 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
         // we check if we are connected or not, we join if we are , else we initiate the connection to the server.
         if (PhotonNetwork.IsConnected)
         {
-            LogFeedback("Joining Room...");
+            LogFeedback("Joining Lobby...");
             // #Critical we need at this point to attempt joining a Random Room. If it fails, we'll get notified in OnJoinRandomFailed() and we'll create one.
             this.JoinLobby();
         }
@@ -74,6 +80,7 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
         // we don't want to do anything if we are not attempting to join a room. 
         // this case where isConnecting is false is typically when you lost or quit the game, when this level is loaded, OnConnectedToMaster will be called, in that case
         // we don't want to do anything.
+        PhotonNetwork.LocalPlayer.NickName = (PhotonNetwork.CountOfPlayers).ToString();
         if (isConnecting)
         {
             LogFeedback("OnConnectedToMaster: Next -> try to Join Random Room");
@@ -81,6 +88,11 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
 
             // #Critical: The first we try to do is to join a potential existing room. If there is, good, else, we'll be called back with OnJoinRandomFailed()
             this.JoinLobby();
+            Debug.Log("Lobby name " +PhotonNetwork.CurrentLobby.Name);
+            Debug.Log("Count of rooms: " + PhotonNetwork.CountOfRooms);
+
+
+
         }
     }
 
@@ -109,24 +121,24 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
     {
         LogFeedback("<Color=Green>OnJoinedRoom</Color> with " + PhotonNetwork.CurrentRoom.PlayerCount + " Player(s)");
         Debug.Log("PUN Basics Tutorial/Launcher: OnJoinedRoom() called by PUN. Now this client is in a room.\nFrom here on, your game would be running.");
-
+        Debug.Log(PhotonNetwork.CurrentRoom.ToString());
+        Debug.Log(PhotonNetwork.CurrentRoom.PlayerCount);
+        
         // #Critical: We only load if we are the first player, else we rely on  PhotonNetwork.AutomaticallySyncScene to sync our instance scene.
-        if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
-        {
-            Debug.Log("We load the 'LoutreRushRoom' ");
-
-            // #Critical
-            // Load the Room Level. 
-            PhotonNetwork.LoadLevel("LoutreRushRoom");
-
-        }
+        
     }
 
 
     public void JoinLobby()
     {
-        bool _result = PhotonNetwork.JoinLobby();
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = this.maxPlayersPerRoom;
+        roomOptions.IsOpen = true;
+        LobbyType lobbyType = new LobbyType();
+        lobbyType = LobbyType.Default;
+        TypedLobby typedLobby = new TypedLobby("All", lobbyType);
 
+        bool _result = PhotonNetwork.JoinLobby(typedLobby);
         if (!_result)
         {
             Debug.LogError("PunCockpit: Could not joinLobby");
@@ -139,6 +151,78 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
         connectingPanel.SetActive(false);
     }
 
-    
+    public void CreateRoom()
+    {
+        string roomName = RoomCreatedName.text;
+        if (roomName.Length <= 1)
+        {
+            Debug.Log("Room Name is empty");
+            return;
+        }
 
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers= this.maxPlayersPerRoom;
+        roomOptions.IsOpen = true;
+        LobbyType lobbyType= new LobbyType();
+        lobbyType = LobbyType.Default;
+        TypedLobby typedLobby = new TypedLobby("All", lobbyType);
+
+        //PhotonNetwork.CreateRoom("test", roomOptions, typedLobby);
+        PhotonNetwork.JoinOrCreateRoom(roomName, roomOptions, typedLobby);
+
+        //PhotonNetwork.JoinRoom(roomName);
+    }
+
+    public override void OnCreatedRoom()
+    {
+        Debug.Log("A room is created");
+    }
+
+    public void DisplayCreateRoomPanel()
+    {
+        if (lobbyPanel.activeSelf)
+        {
+            lobbyPanel.SetActive(false);
+        }
+        createRoomPanel.SetActive(true);
+    }
+
+
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        Debug.Log("Update List");
+        for (int i = 0; i < RoomPanel.childCount; i++)
+        {
+            RoomPanel.GetChild(i).gameObject.SetActive(false);
+        }
+        if (!PhotonNetwork.InRoom)
+        {
+            Debug.Log("Not In room");
+            Debug.Log(roomList.Count);
+
+            foreach (var item in roomList)
+            {
+                GameObject newRoomSelection = Instantiate(UIRoomPrefab, Vector2.one, Quaternion.identity);
+                newRoomSelection.GetComponent<RoomSelection>().RoomName.text = item.Name;
+                newRoomSelection.GetComponent<RoomSelection>().RoomPlayers.text = item.PlayerCount.ToString();
+                newRoomSelection.GetComponent<RectTransform>().parent = RoomPanel;
+                newRoomSelection.GetComponent<RectTransform>().localScale= Vector2.one;
+            }
+        }
+        
+        
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        if (PhotonNetwork.CurrentRoom.PlayerCount == 2)
+        {
+            Debug.Log("We load the 'LoutreRushRoom' ");
+
+            // #Critical
+            // Load the Room Level. 
+            PhotonNetwork.LoadLevel("LoutreRushRoom");
+
+        }
+    }
 }

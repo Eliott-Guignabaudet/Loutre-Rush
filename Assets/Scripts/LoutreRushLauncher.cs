@@ -6,6 +6,7 @@ using Photon.Realtime;
 using UnityEngine.UI;
 using TMPro;
 using Unity.VisualScripting;
+using System;
 
 public class LoutreRushLauncher : MonoBehaviourPunCallbacks
 {
@@ -13,9 +14,11 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
     public GameObject lobbyPanel;
     public GameObject connectingPanel;
     public GameObject createRoomPanel;
+    public GameObject waitingPlayerPanel;
     public GameObject UIRoomPrefab;
     public RectTransform RoomPanel;
     private GameObject roomSelected;
+    private Dictionary<string, GameObject> _roomDisplayed;
     [SerializeField]
     private Button _joinRoomButton;
 
@@ -48,6 +51,7 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
             return;
         }
         Instance = this;
+        _roomDisplayed= new Dictionary<string,GameObject>();
     }
 
 
@@ -189,6 +193,9 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
+        lobbyPanel.SetActive(false);
+        createRoomPanel.SetActive(false);
+        waitingPlayerPanel.SetActive(true);
         LogFeedback("<Color=Green>OnJoinedRoom</Color> with " + PhotonNetwork.CurrentRoom.PlayerCount + " Player(s)");
         Debug.Log("PUN Basics Tutorial/Launcher: OnJoinedRoom() called by PUN. Now this client is in a room.\nFrom here on, your game would be running.");
         Debug.Log(PhotonNetwork.CurrentRoom.ToString());
@@ -215,6 +222,27 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
         }
     }
 
+    public void LeaveRoom()
+    {
+        PhotonNetwork.LeaveRoom();
+    }
+
+    public override void OnLeftRoom()
+    {
+        waitingPlayerPanel.SetActive(false);
+        lobbyPanel.SetActive(true);
+        Dictionary<string, GameObject> keyValuePairs= _roomDisplayed;
+        Debug.Log(keyValuePairs.Count);
+        foreach (var item in keyValuePairs)
+        {
+            if (int.Parse(item.Value.GetComponent<RoomSelection>().RoomPlayers.text) == 0)
+            {
+                _roomDisplayed[item.Key].SetActive(false);
+                _roomDisplayed.Remove(item.Key);
+            }
+        }
+    }
+
 
     #endregion
 
@@ -232,24 +260,45 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
-        for (int i = 0; i < RoomPanel.childCount; i++)
+        if (_roomDisplayed.Count == 0)
         {
-            RoomPanel.GetChild(i).gameObject.SetActive(false);
-        }
-        if (!PhotonNetwork.InRoom)
-        {
-            Debug.Log("RoomList Count: " + roomList.Count);
-            
             foreach (var item in roomList)
             {
-                GameObject newRoomSelection = Instantiate(UIRoomPrefab, Vector2.one, Quaternion.identity);
-                newRoomSelection.GetComponent<RoomSelection>().RoomName.text = item.Name;
-                newRoomSelection.GetComponent<RoomSelection>().RoomPlayers.text = item.PlayerCount.ToString();
-                newRoomSelection.GetComponent<RectTransform>().SetParent(RoomPanel);
-                newRoomSelection.GetComponent<RectTransform>().localScale= Vector2.one;
+                Tuple<string, GameObject> value = AddSelectedRoom(item);
+                _roomDisplayed.Add(value.Item1, value.Item2);
+            }
+            return;
+        }
+
+        Dictionary<string, GameObject> newRoomDisplayed = new Dictionary<string, GameObject>();
+
+        foreach (var entry in _roomDisplayed)
+        {
+            foreach (var item in roomList)
+            {
+                if (item.PlayerCount == 0)
+                {
+                    entry.Value.SetActive(false);
+                }
+                else if (item.Name == entry.Key)
+                {
+                    Tuple<string, GameObject> value = ChangeSelectedRoom(item);
+                    newRoomDisplayed.Add(value.Item1, value.Item2);
+                }
+                else
+                {
+                    Tuple<string, GameObject> value = AddSelectedRoom(item);
+                    newRoomDisplayed.Add(value.Item1, value.Item2);
+                }
+
             }
         }
-        
+
+        _roomDisplayed= newRoomDisplayed;
+        foreach (var item in _roomDisplayed)
+        {
+            Debug.Log(item.Value.ToString());
+        }        
         
     }
 
@@ -272,7 +321,27 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
         roomSelected.GetComponent<Image>().color = Color.green;
     }
 
+    private Tuple<string, GameObject> ChangeSelectedRoom(RoomInfo item)
+    {
+        _roomDisplayed[item.Name].GetComponent<RoomSelection>().RoomPlayers.text = item.PlayerCount.ToString();
+        if (item.PlayerCount == 2)
+        {
+            _roomDisplayed[item.Name].GetComponent<Button>().interactable = false;
+        }
+        return Tuple.Create(item.Name, _roomDisplayed[item.Name]);
+    }
 
+    private Tuple<string, GameObject> AddSelectedRoom(RoomInfo item)
+    {
+        GameObject newRoomSelection = Instantiate(UIRoomPrefab, Vector2.one, Quaternion.identity);
+        newRoomSelection.GetComponent<RoomSelection>().RoomName.text = item.Name;
+        newRoomSelection.GetComponent<RoomSelection>().RoomPlayers.text = item.PlayerCount.ToString();
+        newRoomSelection.GetComponent<RectTransform>().SetParent(RoomPanel);
+        newRoomSelection.GetComponent<RectTransform>().localScale = Vector2.one;
+
+        
+        return Tuple.Create(item.Name, newRoomSelection);
+    }
     
     #endregion
 }

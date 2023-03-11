@@ -231,16 +231,6 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
     {
         waitingPlayerPanel.SetActive(false);
         lobbyPanel.SetActive(true);
-        Dictionary<string, GameObject> keyValuePairs= _roomDisplayed;
-        Debug.Log(keyValuePairs.Count);
-        foreach (var item in keyValuePairs)
-        {
-            if (int.Parse(item.Value.GetComponent<RoomSelection>().RoomPlayers.text) == 0)
-            {
-                _roomDisplayed[item.Key].SetActive(false);
-                _roomDisplayed.Remove(item.Key);
-            }
-        }
     }
 
 
@@ -264,8 +254,11 @@ public class LoutreRushLauncher : MonoBehaviourPunCallbacks
         {
             foreach (var item in roomList)
             {
-                Tuple<string, GameObject> value = AddSelectedRoom(item);
-                _roomDisplayed.Add(value.Item1, value.Item2);
+                if (item.PlayerCount > 0)
+                {
+                    Tuple<string, GameObject> value = AddSelectedRoom(item);
+                    _roomDisplayed.Add(value.Item1, value.Item2);
+                }
             }
             return;
         }

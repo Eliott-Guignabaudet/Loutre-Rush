@@ -6,7 +6,7 @@ public class SpellController : MonoBehaviour
 {
     public float remainingTime;
     public GameObject launcher;
-    public int damages;
+    public float damages;
 
 
     void Update()

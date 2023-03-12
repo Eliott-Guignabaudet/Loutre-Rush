@@ -15,6 +15,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public Rigidbody2D rb;
 
     private float _hp;
+    private float _maxHp;
+    private float _xp;
+    private int _level;
+    private float _maxXpLevel;
+    private float _spellDamage;
     public float hp { 
         get { return _hp; } 
         set { 
@@ -22,18 +27,59 @@ public class PlayerController : MonoBehaviourPunCallbacks
             if (photonView.IsMine)
             {
                 Slider healthBarSlider = healthBar.GetComponent<Slider>();
-                healthBarSlider.value = _hp;
+                healthBarSlider.value = _hp / _maxHp;
             }
             
         }
 
     }
+
+    public float xp
+    {
+        get { return _xp; }
+        set
+        {
+            _xp = value;
+            if (_xp >= _maxXpLevel)
+            {
+                level++;
+                xp -= _maxXpLevel;
+                _spellDamage += 10;
+            }
+
+            if (photonView.IsMine)
+            {
+                Slider experienceBarSlider = experienceBar.GetComponent<Slider>();
+                experienceBarSlider.value = _xp/_maxXpLevel;
+            }
+        }
+    }
+
+    public int level
+    {
+        get { return _level; }
+        set
+        {
+            _level = value;
+            if (photonView.IsMine)
+            {
+                levelUI.GetComponent<TextMeshProUGUI>().text = _level.ToString();
+            }
+        }
+    }
+
+    
+
     public float launchPower = 10;
     public GameObject spellPrefab;
 
     public GameObject endPanel;
 
     public GameObject healthBar;
+    public GameObject experienceBar;
+    public GameObject levelUI;
+
+
 
     private bool isPaused;
 
@@ -42,8 +88,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (photonView.IsMine)
         {
             healthBar = GameObject.Find("HealthBar");
+            experienceBar = GameObject.Find("ExperienceBar");
+            levelUI = GameObject.Find("LevelUI");
         }
+
+        _spellDamage = 50;
+        _maxHp = 250;
+        _maxXpLevel = 200;
         hp = 250;
+        level = 1;
+        xp = 0;
+
     }
 
 
@@ -122,7 +177,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }*/
 
-    public void TakeDamage(int damages, GameObject launcher)
+    public void TakeDamage(float damages, GameObject launcher)
     {
         hp -= damages;
         if (hp <= 0)
@@ -172,7 +227,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         bullet = Instantiate(spellPrefab, pos, Quaternion.identity);
         SpellController spellController = bullet.GetComponent<SpellController>();
-        spellController.damages = 50;
+        spellController.damages = _spellDamage;
         spellController.launcher = gameObject;
         spellController.remainingTime = 1f;
 

@@ -9,7 +9,7 @@ using UnityEngine.UI;
 using Photon.Pun.Demo.PunBasics;
 
 
-public class PlayerController : MonoBehaviourPunCallbacks
+public class PlayerController : AliveEntity
 {
     public float moveSpeed = 10f;
     public Rigidbody2D rb;
@@ -44,7 +44,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             {
                 level++;
                 xp -= _maxXpLevel;
-                _spellDamage += 10;
             }
 
             if (photonView.IsMine)
@@ -60,11 +59,22 @@ public class PlayerController : MonoBehaviourPunCallbacks
         get { return _level; }
         set
         {
+            if (value > _level && value!= 1) 
+            {
+                _spellDamage += 10 * (value - _level);
+                Debug.Log("50 * (" + _hp.ToString() + " / " + _maxHp.ToString() + ") * (" + value.ToString() + " - " + _level.ToString() + ")" );
+                _hp += 50 * (_hp / _maxHp) * (value - _level);
+                _maxHp += 50 * (value - _level);
+                Debug.Log("Spell Damage: " + _spellDamage.ToString());
+                Debug.Log("Health Points: " + _hp.ToString());
+
+            }
             _level = value;
             if (photonView.IsMine)
             {
                 levelUI.GetComponent<TextMeshProUGUI>().text = _level.ToString();
             }
+
         }
     }
 
@@ -177,27 +187,34 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }*/
 
-    public void TakeDamage(float damages, GameObject launcher)
+    public override void TakeDamage(float damages, GameObject launcher)
     {
         hp -= damages;
         if (hp <= 0)
         {
-            DisplayEndScreen();
+            Die();
             isPaused = true;
-            launcher.GetComponent<PlayerController>().isPaused = true;
+            //launcher.GetComponent<PlayerController>().isPaused = true;
         }
 
     }
 
-    public void DisplayEndScreen()
+    public override void Die()
     {
-        
+        Time.timeScale = 0;
         if (photonView.IsMine)
         {
             Loose();
             return;
         }
         Win();
+        
+    }
+
+    public override void Die(GameObject killer)
+    {
+        Die();
+        //Afficher le tueur
     }
 
     public void Win()
@@ -232,6 +249,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         spellController.remainingTime = 1f;
 
         bullet.GetComponent<Rigidbody2D>().AddForce(dir * launchPower);
-        Debug.Log(bullet.GetComponent<Rigidbody2D>());
     }
+
+
 }
